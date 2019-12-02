@@ -1,18 +1,25 @@
 "use strict";
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 class timedCounter extends HTMLElement {
 
     static get boundAttributes() {
-        return ['min', 'max', 'interval', 'onend', 'loop'];
+        return ['min', 'max', 'interval', 'onend', 'loop', 'sync', 'hassync'];
     }
 
     static get observedAttributes() {
-        return ['min', 'max', 'interval', 'onend', 'loop'];
+        return ['min', 'max', 'interval', 'onend', 'loop', 'sync', 'hassync'];
     }
 
+    get sync() {
+        return this.getAttribute('sync');
+    }
+
+    get hassync() {
+        if (this.hasAttribute('hassync')) {
+            return true;
+        } else
+            return false;
+    }
 
     get loop() {
         if (this.hasAttribute('loop'))
@@ -74,22 +81,35 @@ class timedCounter extends HTMLElement {
         const STEP = parseFloat(THISELEMENT.step);
         const MAX = THISELEMENT.max;
         THISELEMENT.innerHTML = THISELEMENT.min;
-        var COUNTER = setInterval(
-            () => {
+        if (!this.hassync) {
+            const COUNTER = setInterval(
+                () => {
 
-                if (i < MAX) {
-                    i = i + STEP;
-                    THISELEMENT.innerHTML = i;
-                } else {
-                    if (!this.loop)
-                        clearInterval(COUNTER);
-                    else {
-                        THISELEMENT.innerHTML = MIN;
-                        i = MIN;
+                    if (i < MAX) {
+                        i = i + STEP;
+                        THISELEMENT.innerHTML = i;
+                    } else {
+                        if (!this.loop)
+                            clearInterval(COUNTER);
+                        else {
+                            THISELEMENT.innerHTML = MIN;
+                            i = MIN;
+                        }
                     }
-                }
-            }, INTERVAL
-        );
+                }, INTERVAL
+            );
+        } else {
+            const SELMT = document.querySelector("#" + this.sync);
+            const ENDTIME = ((MAX - MIN) * INTERVAL) / STEP;
+            if (SELMT) {
+                setInterval(function () {
+                    SELMT.innerHTML = parseFloat(SELMT.innerHTML) + parseFloat(SELMT.step);
+                }, ENDTIME - 100);
+                //100 milliseconds to compensate for latency. 100 is arbitrarily chosen.
+            } else {
+                throw new Error("Invalid id provided in sync attribute")
+            }
+        }
         const ONEND = THISELEMENT.getAttribute('onend');
         if (ONEND) {
             if (ONEND.length - ONEND.indexOf('()') == 2) {
@@ -119,6 +139,7 @@ class timedCounter extends HTMLElement {
             } else {
 
             }
+
         }
     }
 

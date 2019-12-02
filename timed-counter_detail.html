@@ -49,6 +49,8 @@
                 <li>step</li>
                 <li>loop</li>
                 <li>onend</li>
+                <li>sync</li>
+                <li>hassync</li>
             </ul>
         </p>
         <section>
@@ -91,7 +93,26 @@
             <p>
                 This attribute specifies a function to be called at the end of the timer. It expects a non-anonymous
                 function. A non function value will throw a TypeError. If the function does not exist, it will throw a
-                reference error.
+                ReferenceError.
+                Note to any developer willing to contribute: The current implementation checks if there are parantheses
+                atthe end of the string. If there are then the string is assumed to be the name of a function and is
+                called. <code>eval()</code> is not used neither is <code>Function()</code>. Any suggestions for a safe
+                implementation are welcome.
+            </p>
+        </section>
+        <section>
+            <h2>sync</h2>
+            <p>
+                This attribute specifies a <code>timed-counter</code> with which this timer should synchronize. It
+                expects the id of the element to be synced with. If the element doesn't exist, error will be thrown.
+            </p>
+        </section>
+        <section>
+            <h2>hassync</h2>
+            <p>
+                This attribute specifies that the <code>timed-counter</code> has to be synced with a different
+                <code>timed-counter</code>. It expects no arguments. It's mere presence will suffice. If hassync is
+                present, then <code>interval</code> become obsolete.
             </p>
         </section>
     </section>
